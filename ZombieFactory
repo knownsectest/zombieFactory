@@ -1,0 +1,63 @@
+
+
+
+pragma solidity ^0.5.12;
+
+import "./ownable.sol";
+import "./safemath.sol";
+
+contract ZombieFactory is Ownable {
+    //僵尸合约工厂继承Ownable  
+    using SafeMath for uint256;
+    //引用安全数学库，unit256不会发生溢出错误
+
+    uint dnaDigits=16;
+    //创建变量，基因位数
+    uint dnaModulus=10 ** dnaDigits;
+    //僵尸进位变了
+    uint public cooldownTime=1 days;
+    //冷却时间的变量
+    uint public zombiePrice=0.01 ether;
+    //僵尸价格
+    uint public zombieCount=0;
+    //初始僵尸总数
+
+//创建构造体
+    struct Zombie{
+        string name;
+        uint dna;
+        uint16 winCount;
+        uint16 lossCount;
+        uint32 level;
+        uint32 readyTime;
+
+        //16在一起、32和32在一起会节省gas
+        //如果不写会创建uint256，空间会大，会消耗gas
+    }
+    //创建数组存放构造体使用
+    Zombie[] public zombies;
+
+    //创建映射
+    mapping(uint=>address) public zombieToOwner;
+    mapping(address=>uint) ownerZombieCount; 
+    mapping(uint=>uint) public zombieFeedTime;
+    //僵尸id=》喂食次数
+
+    //通知前端生产了僵尸
+    event NewZombie(uint zombieID,string name,uint dna);
+
+    function creatZombie(string memory _name) public {
+        require(ownerZombieCount[msg.sender]==0,"Ownable: new owner is the zero address");
+        uint randDna=uint(keccak256(abi.encodePacked(_name,now)))%dnaModulus;
+        //now是指区块挖出的时间，不是当前时间
+        randDna =randDna-randDna%10; 
+        uint id=zombies.push(Zombie(_name,randDna,0,0,1,0))-1;
+        //返回的是数组的个数，需要-1，
+        zombieToOwner[id]=msg.sender;
+        ownerZombieCount[msg.sender]=ownerZombieCount[msg.sender].add(1);
+        zombieCount =zombieCount.add(1);
+        //通知前端生产了僵尸
+        emit NewZombie(id,_name,randDna);
+        
+    }
+}
