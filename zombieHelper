@@ -1,4 +1,3 @@
-
 pragma solidity ^0.5.12;
 
 import "./zombieFactory.sol";
@@ -39,7 +38,26 @@ contract ZombieHelper is ZombieFactory{
     }
 
     //获取发送者的所有僵尸
-    function getZombiesByOwner (addtress _owner) external view returns(uint[] memory
-    )
+    function getZombiesByOwner (addtress _owner) external view returns(uint[] memory){
+        uint[] memory result =new uint[](ownerZombieCount[_owner]);
+        //计数器
+        uint count=0;
+        for(uint i=0;i<zombies.length;i++){
+            if(zombieToOwner[i]==_owner){
+                result[count]=i;
+                count++;
+            }
+        }
+        return result;
+    }
+    //触发冷却函数
+    function _triggerColldown(Zombie storage _zombie) internal{
+        //明天0辰0点
+        _zombie.readyTime= uint32( now +cooldownTime)-uint32(( now +cooldownTime)%1days);
+    }
+    //验证冷却时间
+    function _isReady(Zombie storage _zombie) internal view returns(bool){
+        return (_zombie.returns<=now);
+    }
 
 }
