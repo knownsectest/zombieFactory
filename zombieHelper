@@ -1,1 +1,45 @@
 
+pragma solidity ^0.5.12;
+
+import "./zombieFactory.sol";
+
+contract ZombieHelper is ZombieFactory{
+    uint levelUpFee= 0.001 ether;
+
+    //创建修饰符 确定僵尸id是否超过某个等级
+    modifier aboveLevel(uint _level,uint _zombieId){
+        require(zombies[_zombieId].level >=_level);
+        _;
+        //修饰符在函数里面，函数里面的其他代码在下划线进行替换
+    }
+
+    //僵尸当前拥有者进行操作
+    modifier onlyOwnerOf(uint _zombieId){
+        require(msg.sender==zombieToOwner[_zombieId]);
+        _;
+    }
+
+    //设置升级费. onlyOwner在onwable里面.external 外部可以调用
+    function setLevelUpFee(uint _fee) external onlyOwner{
+        
+        levelUpFee =_fee;
+    }
+
+    //升级函数
+    function levelUp(uint _zombieId) external payable{
+        //此处未对标必须等于0.01，
+        require(msg.value>=levelUpFee);
+        zombies[_zombieId].level++;
+
+    }
+
+    //改名函数. external修饰没有办法用memory 用calldata
+    function changeName(uint _zombieId,string calldata _newName) external aboveLevel(2,_zombieId) onlyOwnerOf(_zombieId){
+        zombies[_zombieId].name=_newName;
+    }
+
+    //获取发送者的所有僵尸
+    function getZombiesByOwner (addtress _owner) external view returns(uint[] memory
+    )
+
+}
