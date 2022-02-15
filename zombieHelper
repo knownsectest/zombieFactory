@@ -59,5 +59,19 @@ contract ZombieHelper is ZombieFactory{
     function _isReady(Zombie storage _zombie) internal view returns(bool){
         return (_zombie.returns<=now);
     }
+    //合体函数 internal内部调用， 该调用要为僵尸拥有者所以加onlyownerof
+    function multiply(uint _zombieId,uint _targetDna) internal onlyOwnerOf(_zombie){
+        Zombie storage myZombie=zombies[_zombieId];
+        require(_isReady(myZombie));
+        //防止溢出操作
+        _targetDna= _targetDna%dnaModulus;
+        uint newDna=(myZombie.dna+_targetDna)/2;
+        newDna =newDna-newDna%10+9//新的Dna=新的Dna-新Dna除以10取余+9
+        //调用createZombie方法
+        _createZombie("NoName",newDna);
+        //触发冷却时间
+        _triggerColldown(myZombie);
+        //****要不要验证冷却时间***
+    }
 
 }
