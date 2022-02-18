@@ -67,7 +67,7 @@ contract ERC721{
     /// @notice 查询一个地址是否是另一个地址的授权操作员
     /// @param _owner 所有者
     /// @param _operator 代表所有者的授权操作员
-  //  function isApprovedForAll(address _owner, address _operator) external view returns (bool);
+  function isApprovedForAll(address _owner, address _operator) external view returns (bool);
   function transfer(address _to,uint256 _tokenId) public;
   function takeOwnership(uint256 _tokenId) public;
   function approve(address _to, uint256 _tokenId) public;
