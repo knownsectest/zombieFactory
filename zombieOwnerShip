@@ -32,8 +32,10 @@ contract ZombieOwnerShip is ZombieHelper,ERC721{
         address owner= ownerOf(_tokenId);
         _transfer(owner,msg.sender,_tokenId);
     }
+    //批准函数
     function approve(address _to, uint256 _tokenId) public{
         zombieApprovals[_tokenId]=_to;
         emit Approval(msg.sender,_to,_tokenId);
     }
+    //接收批准
 }
